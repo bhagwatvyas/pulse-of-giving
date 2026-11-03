@@ -14,7 +14,7 @@ This is an open-source portfolio project about reliable AI application engineeri
 ## Architecture
 
 ```text
-Versioned supply snapshot  →  MusicSpec compiler  →  hosted model candidates
+Versioned supply snapshot  →  MusicSpec compiler  →  self-hosted model candidates
         ↓                        ↓                        ↓
 provenance + freshness       fixed daily seed        automated evaluation
                                                            ↓
@@ -36,15 +36,42 @@ infra/cloud-run/         Future Cloud Run GPU Job configuration
 
 1. Run the policy/compiler tests locally.
 2. Install Docker Desktop and build the lightweight worker image.
-3. Add and benchmark one pinned ACE-Step model adapter locally.
-4. Run a manual Cloud Run GPU Job with synthetic data.
-5. Enable the daily schedule only after reviewing output, logs, and cost.
+3. Exercise the review-only fixture adapter and inspect its artifact manifest.
+4. Add and benchmark one pinned, self-hosted model adapter locally.
+5. Run a manual Cloud Run GPU Job with synthetic data.
+6. Enable the daily schedule only after reviewing output, logs, and cost.
 
 The repository deliberately does **not** include model weights, generated audio, cloud credentials, API tokens, or production data.
 
 ## Current status
 
-The website is an illustrative front-end prototype. The generator service currently compiles a deterministic `MusicSpec` and quality policy from a typed snapshot. It does not publish audio until a pinned hosted-model adapter has been validated locally.
+The website is an illustrative front-end prototype. The generator service compiles a deterministic `MusicSpec`, writes immutable candidate artifacts, and enforces a manual promotion gate. Its included fixture adapter produces test tones only; it does not perform AI inference and cannot publish an artifact. A pinned self-hosted model adapter is the next integration.
+
+## Local artifact-pipeline exercise
+
+From `generator/`, after installing the package in editable mode:
+
+```bash
+pulse-artifact fixture \
+  --snapshot fixtures/illustrative-pnw.json \
+  --date 2026-11-02 \
+  --out local-artifacts
+```
+
+This writes a dated artifact directory with two fixture WAV candidates, file hashes, generation parameters, fixture measurements, evaluation results, and a `pending_human_review` manifest. It deliberately does not write `current.json`: illustrative data and a test-only adapter can never become public playback.
+
+The same local contract can be checked in the worker image:
+
+```bash
+docker build -t pulse-generator-local generator
+docker run --rm --user "$(id -u):$(id -g)" \
+  -v "$(pwd)/generator:/workspace" \
+  --entrypoint pulse-artifact \
+  pulse-generator-local fixture \
+  --snapshot fixtures/illustrative-pnw.json \
+  --date 2026-11-02 \
+  --out /workspace/local-artifacts
+```
 
 ## Open source
 

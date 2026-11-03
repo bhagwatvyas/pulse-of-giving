@@ -1,5 +1,7 @@
 from datetime import date, datetime
 from enum import StrEnum
+from pathlib import Path
+from typing import Any
 
 from pydantic import AnyHttpUrl, BaseModel, Field, model_validator
 
@@ -45,6 +47,24 @@ class MusicSpec(BaseModel):
     safety_constraints: list[str]
 
 
+class ModelProvenance(BaseModel):
+    """Identity and review state for the exact self-hosted model release."""
+
+    model_id: str = Field(min_length=3, max_length=200)
+    revision: str = Field(min_length=3, max_length=200)
+    upstream_license: str = Field(min_length=3, max_length=200)
+    reviewed_at: date
+    release_eligible: bool = False
+
+
+class GeneratedCandidate(BaseModel):
+    """A candidate emitted by a model adapter before it is evaluated."""
+
+    candidate_id: str = Field(pattern=r"^[a-z0-9][a-z0-9-]{2,80}$")
+    audio_path: Path
+    effective_parameters: dict[str, Any]
+
+
 class CandidateMetrics(BaseModel):
     duration_seconds: float
     integrated_lufs: float
@@ -58,4 +78,11 @@ class CandidateMetrics(BaseModel):
 class EvaluationResult(BaseModel):
     passed: bool
     reasons: list[str]
+    metrics: CandidateMetrics
+
+
+class CandidateAnalysis(BaseModel):
+    """Measurements supplied by a pluggable audio-analysis implementation."""
+
+    measurement_origin: str = Field(min_length=3, max_length=240)
     metrics: CandidateMetrics

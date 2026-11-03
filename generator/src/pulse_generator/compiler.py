@@ -24,7 +24,7 @@ def pacific_seed(snapshot_id: str, day: date) -> int:
 def compile_music_spec(
     snapshot: CommunityPulseSnapshot,
     day: date,
-    model_id: str = "ACE-Step/pinned-model-pending-validation",
+    model_id: str = "self-hosted-model-pending-validation",
 ) -> MusicSpec:
     seed = pacific_seed(snapshot.snapshot_id, day)
     mood = MOOD_BY_STATE[snapshot.supply_state]

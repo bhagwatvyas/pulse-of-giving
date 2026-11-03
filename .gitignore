@@ -10,5 +10,6 @@ artifacts/
 models/
 generator/output/
 generator/illustrative-music-spec.json
+generator/local-artifacts/
 service-account*.json
 *.pem
