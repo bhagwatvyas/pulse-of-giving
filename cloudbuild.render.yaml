@@ -1,0 +1,11 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --file
+      - generator/Dockerfile.gpu
+      - --tag
+      - us-central1-docker.pkg.dev/$PROJECT_ID/pulse/ace-step-render:ca1e85f
+      - .
+images:
+  - us-central1-docker.pkg.dev/$PROJECT_ID/pulse/ace-step-render:ca1e85f
