@@ -1,0 +1,35 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  name: pulse-render-illustrative
+  labels:
+    cloud.googleapis.com/location: us-central1
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/gpu-zonal-redundancy-disabled: "true"
+    spec:
+      template:
+        spec:
+          serviceAccountName: pulse-generator@PROJECT_ID.iam.gserviceaccount.com
+          maxRetries: 0
+          timeoutSeconds: 1800
+          containers:
+            - image: us-central1-docker.pkg.dev/PROJECT_ID/pulse/ace-step-render:IMAGE_TAG
+              resources:
+                limits:
+                  cpu: "4"
+                  memory: 16Gi
+                  nvidia.com/gpu: "1"
+              args:
+                - --snapshot
+                - /workspace/generator/fixtures/illustrative-pnw.json
+                - --bucket
+                - PROJECT_ID-pulse-artifacts
+                - --revision
+                - ca1e85fe9430179831e6bc6be790c332190a3866
+                - --date
+                - "2026-11-02"
+          nodeSelector:
+            run.googleapis.com/accelerator: nvidia-l4

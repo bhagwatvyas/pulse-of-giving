@@ -52,12 +52,11 @@ class AceStepApiAdapter:
         generated: list[GeneratedCandidate] = []
         for index in range(candidate_count):
             seed = spec.seed + index
-            task_id = self._post_json(
+            task_response = self._post_json(
                 "/release_task",
                 {
                     "prompt": spec.prompt,
                     "lyrics": "[Instrumental]",
-                    "instrumental": True,
                     "thinking": False,
                     "audio_format": "wav",
                     "model": self.model_id,
@@ -69,7 +68,7 @@ class AceStepApiAdapter:
                     "seed": seed,
                 },
             )
-            task_key = self._task_id(task_id)
+            task_key = self._task_id(task_response)
             result = self._wait_for_task(task_key)
             remote_path = self._audio_path(result)
             candidate_id = f"ace-step-{index:03d}"
@@ -102,7 +101,8 @@ class AceStepApiAdapter:
     def _wait_for_task(self, task_id: str) -> dict[str, Any]:
         deadline = time.monotonic() + self.timeout_seconds
         while time.monotonic() < deadline:
-            result = self._post_json("/query_result", {"task_id": task_id})
+            response = self._post_json("/query_result", {"task_id_list": [task_id]})
+            result = self._query_result(response, task_id)
             status = result.get("status")
             if status == 1:
                 return result
@@ -135,6 +135,7 @@ class AceStepApiAdapter:
 
     @staticmethod
     def _task_id(response: dict[str, Any]) -> str:
+        response = AceStepApiAdapter._unwrap(response)
         for key in ("task_id", "taskId", "id"):
             value = response.get(key)
             if isinstance(value, str) and value:
@@ -143,10 +144,22 @@ class AceStepApiAdapter:
 
     @staticmethod
     def _audio_path(result: dict[str, Any]) -> str:
+        result = AceStepApiAdapter._unwrap(result)
+        nested_result = result.get("result")
+        if isinstance(nested_result, str):
+            try:
+                parsed = json.loads(nested_result)
+            except json.JSONDecodeError:
+                parsed = []
+            if isinstance(parsed, list) and parsed and isinstance(parsed[0], dict):
+                result = parsed[0]
         for key in ("audio_path", "audioPath", "path"):
             value = result.get(key)
             if isinstance(value, str) and value:
                 return value
+        value = result.get("file")
+        if isinstance(value, str) and value:
+            return value
         data = result.get("data")
         if isinstance(data, dict):
             for key in ("audio_path", "audioPath", "path"):
@@ -154,3 +167,19 @@ class AceStepApiAdapter:
                 if isinstance(value, str) and value:
                     return value
         raise RuntimeError(f"ACE-Step result did not include an audio path: {result}")
+
+    @staticmethod
+    def _unwrap(response: dict[str, Any]) -> dict[str, Any]:
+        """ACE-Step wraps API payloads in ``{data, code, ...}``."""
+        data = response.get("data")
+        return data if isinstance(data, dict) else response
+
+    @staticmethod
+    def _query_result(response: dict[str, Any], task_id: str) -> dict[str, Any]:
+        data = response.get("data")
+        if not isinstance(data, list) or len(data) != 1 or not isinstance(data[0], dict):
+            raise RuntimeError(f"ACE-Step query returned an unexpected response: {response}")
+        item = data[0]
+        if item.get("task_id") != task_id:
+            raise RuntimeError(f"ACE-Step query returned the wrong task: {item}")
+        return item
