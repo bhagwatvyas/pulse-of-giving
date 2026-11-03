@@ -61,7 +61,7 @@ Cloud Run GPU Job → self-hosted model → evaluation → human approval
 
 `firebase.json` is checked in for a staging deployment. It disables caching for `current.json` and the runtime artifact-origin configuration, while the public player remains disabled until a real approved artifact exists. The repository intentionally does not contain a Firebase project ID, GCP credentials, or deployment tokens.
 
-After creating a dedicated GCP/Firebase project and budget alert, configure Firebase Hosting to use `dist/` and deploy first to a preview channel. Do not attach a production custom domain until the page has been reviewed with a verified, human-approved artifact.
+The Firebase project binding is tracked in `.firebaserc`. Deploy first to a Firebase preview channel. Preview URLs are shareable but not access-controlled, so do not treat one as private or attach a production custom domain until the page has been reviewed with a verified, human-approved artifact.
 
 ## Local artifact-pipeline exercise
 
