@@ -1,0 +1,14 @@
+.DS_Store
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+*.egg-info/
+artifacts/
+models/
+generator/output/
+generator/illustrative-music-spec.json
+service-account*.json
+*.pem

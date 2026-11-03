@@ -1,0 +1,21 @@
+.daily-variation {
+  border: 1px solid #d9e2d5;
+  background: #edf2e9;
+  padding: .8rem .9rem;
+  margin-top: 1.1rem;
+}
+
+.daily-variation p { margin: 0 0 .2rem; }
+.daily-variation strong,
+.daily-variation span { display: block; }
+.daily-variation strong {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  letter-spacing: -.025em;
+}
+.daily-variation span {
+  font-size: .7rem;
+  color: #526158;
+  margin-top: .15rem;
+}
+.data-disclosure { margin-top: 1.1rem; }

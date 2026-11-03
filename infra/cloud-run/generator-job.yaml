@@ -1,0 +1,31 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  name: pulse-generate-daily
+  labels:
+    cloud.googleapis.com/location: us-central1
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/gpu-zonal-redundancy-disabled: "true"
+    spec:
+      template:
+        spec:
+          serviceAccountName: pulse-generator@PROJECT_ID.iam.gserviceaccount.com
+          maxRetries: 0
+          timeoutSeconds: 1800
+          containers:
+            - image: us-central1-docker.pkg.dev/PROJECT_ID/pulse/generator:IMAGE_TAG
+              resources:
+                limits:
+                  cpu: "4"
+                  memory: 16Gi
+                  nvidia.com/gpu: "1"
+              env:
+                - name: PULSE_ENV
+                  value: production
+                - name: ARTIFACT_BUCKET
+                  value: PROJECT_ID-pulse-artifacts
+          nodeSelector:
+            run.googleapis.com/accelerator: nvidia-l4

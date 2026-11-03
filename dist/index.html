@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A musical way to understand blood donation, then take a trusted next step." />
+    <title>Pulse of Giving — Hear the need. Make a difference.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="daily.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Pulse of Giving home"><span class="brand-mark">∿</span>Pulse of Giving</a>
+      <nav aria-label="Main navigation">
+        <a href="#experience">The music</a>
+        <a href="#what-to-expect">What to expect</a>
+        <a href="#take-action">Donate</a>
+      </nav>
+      <a class="header-cta" href="#take-action">Find a center <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-dot"></span> A community can sound like care.</p>
+          <h1 id="hero-title">Hear the need.<br /><em>Feel</em> your next step.</h1>
+          <p class="hero-lede">Blood donation is a small, human act with a real community effect. This is today’s gentle variation, shaped by a community-supply scenario—so the data becomes something you can feel, not just read.</p>
+          <div class="hero-actions">
+            <button class="button button-primary play-button" id="playHero" type="button" aria-pressed="false"><span class="play-icon" aria-hidden="true">▶</span><span class="play-label">Play the pulse</span></button>
+            <a class="text-link" href="#what-to-expect">What does donating feel like? <span aria-hidden="true">↓</span></a>
+          </div>
+          <p class="audio-hint">Sound starts only when you press play.</p>
+        </div>
+
+        <div class="hero-art" aria-label="Interactive abstract visualization of the music">
+          <div class="orb orb-one"></div><div class="orb orb-two"></div><div class="orb orb-three"></div>
+          <div class="pulse-card">
+            <div class="card-topline"><span>COMMUNITY PULSE</span><span class="status-pill" id="heroStatus">LISTENING MODE</span></div>
+            <div class="signal-wrap" aria-hidden="true"><svg class="signal" viewBox="0 0 500 140" preserveAspectRatio="none"><path id="signalPath" d="M0,80 C25,80 30,80 45,80 C65,80 65,32 83,32 C101,32 101,113 121,113 C139,113 139,57 158,57 C178,57 181,80 205,80 C228,80 238,80 250,80 C271,80 271,43 289,43 C307,43 307,101 327,101 C345,101 345,65 363,65 C382,65 383,80 410,80 L500,80" /></svg></div>
+            <div class="signal-labels"><span id="signalTitle">A steady shared rhythm</span><span id="bpmLabel">84 BPM</span></div>
+          </div>
+          <p class="art-caption">The scenario shapes the music. Today’s Pacific-date seed shapes the variation.</p>
+        </div>
+      </section>
+
+      <section class="experience section" id="experience" aria-labelledby="experience-title">
+        <div class="section-heading"><p class="eyebrow">01 / THE LISTENING ROOM</p><h2 id="experience-title">Music shaped by a community signal.</h2></div>
+        <div class="experience-grid">
+          <div class="scenario-panel">
+            <div class="panel-head"><div><p class="micro-label">SUPPLY SCENARIO</p><h3 id="scenarioName">Steady supply</h3></div><span class="demo-badge">Illustrative demo</span></div>
+            <p id="scenarioDescription">A calm local supply picture: enough room to breathe, with a reminder that reliable donors keep it that way.</p>
+            <div class="scenario-picker" role="group" aria-label="Choose a supply scenario">
+              <button class="scenario-choice is-selected" type="button" data-scenario="steady"><span class="choice-dot steady"></span><span><strong>Steady</strong><small>room to breathe</small></span></button>
+              <button class="scenario-choice" type="button" data-scenario="tight"><span class="choice-dot tight"></span><span><strong>Needs support</strong><small>a gentle nudge to help</small></span></button>
+              <button class="scenario-choice" type="button" data-scenario="urgent"><span class="choice-dot urgent"></span><span><strong>High need</strong><small>showing up matters</small></span></button>
+            </div>
+            <div class="daily-variation"><p class="micro-label">TODAY’S MUSIC VARIATION</p><strong id="dailyVariationTitle">Pacific-day variation</strong><span id="dailyVariationDetail">A new, reproducible arrangement appears each Pacific day.</span></div>
+            <div class="data-disclosure"><span class="info-mark">i</span><p><strong>This is a sound-design demo, not live blood inventory.</strong> Its music can refresh daily while its illustrative supply scenario remains unchanged. <a href="#data-trust">How we would handle real data</a></p></div>
+          </div>
+          <div class="sound-panel">
+            <p class="micro-label">HOW THE SOUND CHANGES</p>
+            <div class="sound-mapping"><div><span class="mapping-number" id="tempoValue">84</span><span class="mapping-label">tempo<br />beats/min</span></div><div><span class="mapping-word" id="harmonyValue">Open</span><span class="mapping-label">harmony<br />feel</span></div><div><span class="mapping-word" id="textureValue">Warm</span><span class="mapping-label">texture<br />density</span></div></div>
+            <div class="music-controls"><button class="round-play play-button" id="playRoom" type="button" aria-label="Play today's variation for the current supply scenario" aria-pressed="false">▶</button><div><strong id="nowPlaying">Ready to hear today’s steady variation</strong><span id="musicStatus">Select a scenario, then press play.</span></div></div>
+            <div class="progress" aria-hidden="true"><span id="progressFill"></span></div>
+          </div>
+        </div>
+        <div class="mapping-note"><span>DATA + DATE → SOUND</span><p>The supply snapshot sets a gentle tempo range, harmony, and density. Today’s Pacific date chooses the motif and timbre inside those calm boundaries. A fresh track never means fresher data.</p></div>
+      </section>
+
+      <section class="expect section" id="what-to-expect" aria-labelledby="expect-title">
+        <div class="expect-intro"><p class="eyebrow">02 / NO MYSTERY REQUIRED</p><h2 id="expect-title">A donation can be a very ordinary hour.</h2><p>The details vary by provider and donation type. For a typical whole-blood donation, the American Red Cross says the visit is about an hour and the collection itself is usually 8–10 minutes.</p><a class="source-link" href="https://www.redcrossblood.org/donate-blood/blood-donation-process/donation-process-overview.html" target="_blank" rel="noreferrer">Read the American Red Cross donation overview <span aria-hidden="true">↗</span></a></div>
+        <ol class="expect-steps"><li><span class="step-number">01</span><div><h3>Check in</h3><p>Bring ID, settle in, and complete the provider’s registration steps.</p></div></li><li><span class="step-number">02</span><div><h3>A short health screen</h3><p>A trained staff member privately reviews your health history and checks basics like pulse and hemoglobin.</p></div></li><li><span class="step-number">03</span><div><h3>The donation</h3><p>You’ll be comfortably seated or lying down. The needle feels like a quick pinch; the actual whole-blood draw is often 8–10 minutes.</p></div></li><li><span class="step-number">04</span><div><h3>Snack, rest, go on with your day</h3><p>Staff will give you their own aftercare guidance before you leave.</p></div></li></ol>
+      </section>
+
+      <section class="reassurance section" aria-labelledby="reassurance-title"><div><p class="eyebrow">03 / FIRST TIME IS WELCOME</p><h2 id="reassurance-title">Nervous is normal. You won’t have to figure it out alone.</h2></div><div class="reassurance-copy"><p>You don’t need to self-diagnose eligibility or prepare perfectly. A donation organization can answer questions about your health history, travel, medications, and the type of donation that fits you.</p><div class="resource-links"><a href="https://www.redcrossblood.org/donate-blood/how-to-donate/eligibility-requirements.html" target="_blank" rel="noreferrer"><span>01</span><strong>Check eligibility</strong><span aria-hidden="true">↗</span></a><a href="https://www.redcrossblood.org/donate-blood/how-to-donate/common-concerns/first-time-donors.html" target="_blank" rel="noreferrer"><span>02</span><strong>First-time donor guide</strong><span aria-hidden="true">↗</span></a><a href="https://www.redcrossblood.org/faq.html" target="_blank" rel="noreferrer"><span>03</span><strong>Common questions</strong><span aria-hidden="true">↗</span></a></div></div></section>
+
+      <section class="action section" id="take-action" aria-labelledby="action-title"><div class="action-inner"><p class="eyebrow light">04 / THE NEXT SMALL THING</p><h2 id="action-title">You can turn this feeling into a plan.</h2><p>Pick the organization that serves your area. You’ll leave this site to see its current locations, eligibility guidance, and appointments.</p><div class="organization-grid"><a href="https://www.redcrossblood.org/give.html/find-drive" target="_blank" rel="noreferrer"><strong>American Red Cross</strong><span>Find a drive or center <b aria-hidden="true">↗</b></span></a><a href="https://www.vitalant.org/" target="_blank" rel="noreferrer"><strong>Vitalant</strong><span>Find a location <b aria-hidden="true">↗</b></span></a><a href="https://www.oneblood.org/donate-now/" target="_blank" rel="noreferrer"><strong>OneBlood</strong><span>Find a nearby option <b aria-hidden="true">↗</b></span></a></div><p class="action-fineprint">Availability, eligibility, and appointments are determined by each organization.</p></div></section>
+
+      <section class="data-trust section" id="data-trust" aria-labelledby="data-title"><div><p class="eyebrow">TRANSPARENCY</p><h2 id="data-title">Data should earn the right to move you.</h2></div><div><p>This prototype keeps two clocks visible: its scenarios are illustrative, and its music receives a new Pacific-date variation in the browser. A production version would show the provider, coverage area, source-published time, fetched time, and a “stale after” policy beside every supply signal—separately from the music’s daily creation date.</p><p class="portfolio-note"><strong>Portfolio signal:</strong> This is an AI-application engineering concept where data provenance, safety boundaries, interaction design, and generative media are product requirements—not polish added at the end.</p></div></section>
+    </main>
+    <footer><a class="brand" href="#top"><span class="brand-mark">∿</span>Pulse of Giving</a><p>Made to make a vital act feel human.</p><a href="#data-trust">Data transparency</a></footer>
+    <script src="app.js"></script>
+  </body>
+</html>
