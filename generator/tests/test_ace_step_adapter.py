@@ -18,9 +18,14 @@ def test_ace_step_accepts_common_api_response_shapes() -> None:
     assert (
         AceStepApiAdapter._audio_path(
             {"result": '[{"file":"/tmp/outputs/a.wav", "status":1}]'}
-        )
+    )
         == "/tmp/outputs/a.wav"
     )
+
+
+def test_ace_step_keeps_an_api_audio_url_intact() -> None:
+    remote_path = "/v1/audio?path=%2Fopt%2Facestep%2Fa.wav"
+    assert remote_path.startswith("/v1/audio?")
 
 
 def test_ace_step_parses_batched_query_response() -> None:

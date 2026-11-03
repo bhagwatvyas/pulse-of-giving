@@ -28,7 +28,6 @@ const els = {
 
 let approvedEdition = null;
 let audio = null;
-let audioObjectUrl = null;
 
 const stateCopy = {
   steady: {
@@ -177,6 +176,33 @@ function showApproved(manifest, candidate, manifestUrl) {
   approvedEdition = { manifest, candidate, audioUrl: artifactChildUrl(candidate.audio_file, manifestUrl) };
 }
 
+function showReviewedDemo(demo, demoUrl) {
+  els.heroStatus.textContent = "REVIEWED DEMO";
+  els.title.textContent = "A calm prototype pulse";
+  els.bpm.textContent = `${demo.tempo_bpm} BPM`;
+  els.name.textContent = "Illustrative prototype";
+  els.description.textContent = "A reviewed AI-generated music demonstration. It is not a statement about current blood supply.";
+  els.badge.textContent = "Illustrative audio demo";
+  els.coverage.textContent = "Pacific Northwest prototype";
+  els.source.textContent = "Illustrative engineering fixture";
+  els.published.textContent = "Not applicable";
+  els.validUntil.textContent = "Not applicable";
+  els.disclosure.innerHTML = `<span class="info-mark">i</span><p><strong>Illustrative data, reviewed audio.</strong> ${demo.disclosure}</p>`;
+  els.tempo.textContent = demo.tempo_bpm;
+  els.revision.textContent = demo.revision.slice(0, 12);
+  els.review.textContent = "Human reviewed";
+  els.now.textContent = "Ready to play the reviewed prototype";
+  els.status.textContent = `Reviewed by ${demo.reviewer}. The audio hash verifies before playback.`;
+  els.heroLede.textContent = "A calm, AI-generated audio prototype for Pulse of Giving. Real supply updates will remain unavailable until they are verified and approved.";
+  els.audioHint.textContent = "This demo is model-generated audio; it does not represent live or current community data.";
+  setButtonAvailability(true, "Play the demo");
+  approvedEdition = {
+    manifest: { kind: demo.kind },
+    candidate: { sha256: demo.sha256 },
+    audioUrl: new URL(demo.audio_file, demoUrl)
+  };
+}
+
 async function digestHex(buffer) {
   if (!window.crypto?.subtle) throw new Error("Secure audio verification is unavailable in this browser.");
   const bytes = new Uint8Array(await window.crypto.subtle.digest("SHA-256", buffer));
@@ -192,8 +218,9 @@ async function prepareAudio() {
   if ((await digestHex(buffer)) !== approvedEdition.candidate.sha256) {
     throw new Error("Audio integrity check failed.");
   }
-  audioObjectUrl = URL.createObjectURL(new Blob([buffer], { type: response.headers.get("content-type") || "audio/wav" }));
-  audio = new Audio(audioObjectUrl);
+  // Verify the exact response before allowing playback. Use its same-origin URL
+  // for media decoding; this avoids browser-specific failures on blob: media.
+  audio = new Audio(approvedEdition.audioUrl);
   audio.addEventListener("play", updatePlayingState);
   audio.addEventListener("pause", updatePlayingState);
   audio.addEventListener("ended", updatePlayingState);
@@ -245,11 +272,18 @@ async function initializeArtifactPlayer() {
     showApproved(manifest, candidate, manifestUrl);
   } catch (error) {
     console.info("No eligible Pulse of Giving artifact is currently published.", error);
+    try {
+      const demoUrl = new URL("./demo/reviewed-illustrative.json", window.location.href);
+      const demo = await fetchJson(demoUrl);
+      if (demo.kind !== "reviewed_illustrative_demo" || !/^[a-f0-9]{64}$/.test(demo.sha256 || "")) {
+        throw new Error("Illustrative demo metadata is invalid.");
+      }
+      showReviewedDemo(demo, demoUrl);
+    } catch (demoError) {
+      console.info("No reviewed illustrative demo is available.", demoError);
+    }
   }
 }
 
 els.buttons.forEach(button => button.addEventListener("click", togglePlayback));
-window.addEventListener("beforeunload", () => {
-  if (audioObjectUrl) URL.revokeObjectURL(audioObjectUrl);
-});
 initializeArtifactPlayer();

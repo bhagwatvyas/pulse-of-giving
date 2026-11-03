@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "reviewed_illustrative_demo",
+  "label": "Reviewed demo audio — illustrative data",
+  "reviewer": "Vyas Bhagwat",
+  "reviewed_at": "2026-11-03T18:47:48Z",
+  "audio_file": "ace-step-illustrative.wav",
+  "sha256": "21cd129cbbb19b2b5639d7982616fda7679f92a4a89f3b4a4b1ec6dd3ae96eea",
+  "tempo_bpm": 71,
+  "duration_seconds": 35,
+  "model": "acestep-v15-turbo",
+  "revision": "ca1e85fe9430179831e6bc6be790c332190a3866",
+  "disclosure": "This is a reviewed AI-generated audio demo built from an illustrative engineering fixture. It does not represent current blood supply or community need."
+}

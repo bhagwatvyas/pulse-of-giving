@@ -73,7 +73,15 @@ class AceStepApiAdapter:
             remote_path = self._audio_path(result)
             candidate_id = f"ace-step-{index:03d}"
             destination = output_directory / f"{candidate_id}.wav"
-            self._download("/v1/audio?" + urlencode({"path": remote_path}), destination)
+            # ACE-Step versions return either a filesystem path or an already
+            # signed local API path. Preserve the latter verbatim: encoding it
+            # again produces a nested `/v1/audio?path=/v1/audio?...` URL.
+            audio_url = (
+                remote_path
+                if remote_path.startswith("/v1/audio?")
+                else "/v1/audio?" + urlencode({"path": remote_path})
+            )
+            self._download(audio_url, destination)
             generated.append(
                 GeneratedCandidate(
                     candidate_id=candidate_id,
