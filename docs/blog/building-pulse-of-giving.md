@@ -32,97 +32,95 @@ The site then pairs the listening experience with the practical questions a pros
 
 The call to action is intentionally outbound. Pulse of Giving should point people toward organizations that already operate collection, screening, scheduling, and clinical care. Building a second scheduling layer would add risk without adding much value.
 
-## The hard part is not generating audio
+## The system design: a private generation plane and a public delivery plane
 
-Generating a pleasant 35-second clip is feasible. Building a system that deserves to make a public claim about a community’s blood supply is the actual engineering problem.
+Generating audio is not the product boundary. The important boundary is between a private, reviewable model run and a public experience that can make claims about a community. I designed the system as two separate planes, joined by an explicit promotion step.
 
-I made four decisions early:
+```mermaid
+flowchart TB
+    snapshot[Verified PNW source snapshot] --> compiler[Deterministic MusicSpec compiler]
 
-1. **Data freshness and music freshness are separate clocks.** A new track generated today does not imply that the supply data was published today. Every artifact records both the source snapshot and the Pacific-date generation seed. The UI must never describe a track as “live” unless the underlying source genuinely is.
+    subgraph private[Private generation and review plane]
+        compiler --> adapter[MusicModelAdapter]
+        adapter --> worker[Containerized ACE-Step GPU worker]
+        worker --> candidate[Private WAV candidate]
+        candidate --> analysis[Audio analysis and rejection gates]
+        analysis --> manifest[Immutable artifact manifest]
+        manifest --> gate{Release gates pass?}
+        gate -- No --> hold[Keep private: pending review or rejected]
+        gate -- Yes --> reviewer[Named human reviewer]
+        reviewer --> pointer[Approved current.json pointer]
+    end
 
-2. **The system fails closed.** If a verified, review-approved artifact is unavailable, the site does not substitute a plausible number, a synthetic trend, or browser-generated audio. It displays a clear unpublished state instead.
+    subgraph public[Public delivery plane]
+        pointer --> site[Firebase-hosted web experience]
+        site --> listener[Visitor: listen, learn, find a center]
+    end
 
-3. **Audio generation is self-hosted.** The project uses a containerized ACE-Step model integration instead of a third-party music-generation API. That makes model versioning, reproducibility, and the deployment path visible parts of the engineering work.
-
-4. **Publication is a promotion, not a side effect of inference.** A model output is only a candidate. It cannot become public playback until the data, model release, automated evaluation, and human review gates all pass.
-
-Those choices are not incidental implementation details. They shape the product’s credibility.
-
-## The architecture
-
-The system is divided into a public static experience and a private generation pipeline.
-
-```text
-Verified PNW source snapshot
-            │
-            ▼
-     Deterministic MusicSpec compiler
-            │
-            ▼
- Self-hosted ACE-Step GPU worker
-            │
-            ▼
- Candidate analysis + rejection gates
-            │
-            ▼
- Immutable artifact manifest + WAV candidates
-            │
-      human approval
-            ▼
-     current.json pointer ───► Firebase-hosted web experience
+    snapshot -. source provenance .-> manifest
+    adapter -. model provenance .-> manifest
 ```
 
-The frontend is deliberately simple. It is a static Firebase-hosted site that reads a small `current.json` pointer, resolves an immutable manifest, and downloads audio only after a visitor presses play. Before playback, the browser verifies the audio file’s SHA-256 against the manifest. That does not make a public bucket a security boundary, but it does prevent an accidental file replacement from silently changing the sound users hear.
+The model worker is not an internet-facing feature. It is a private, one-shot job that renders a candidate, writes a review artifact, and exits. The public site has no route to the model API, no ability to request a generation, and no permission to make an unpublished file audible.
 
-The generator is a typed Python service. Its input is a `CommunityPulseSnapshot`, which includes the source identity, source URL, coverage area, publication time, validity window, and verification status. The compiler turns that snapshot into a deterministic `MusicSpec`:
+That separation is what lets the user experience remain quiet and simple while the AI system behind it remains inspectable.
 
-- a date-derived seed;
-- a fixed duration window;
-- a tempo constrained to a calm range;
-- an instrumental prompt;
-- a negative prompt excluding lyrics, sirens, aggressive drums, harsh percussion, and abrupt endings; and
-- explicit safety constraints recorded alongside the result.
+## A typed specification is the AI control plane
 
-The date is intentionally part of the seed. That gives the project a new composition cadence without pretending the underlying data changes every day.
+The generator is a typed Python service. A `CommunityPulseSnapshot` carries the source identity and URL, coverage area, publication and validity times, supply state, and verification status. The compiler turns it into a `MusicSpec`: the complete, versioned request for a composition.
 
-## A model adapter, not a model-shaped abstraction
+The `MusicSpec` fixes the attributes the product needs to control:
 
-The music model sits behind an adapter contract. The adapter receives a `MusicSpec`, renders one or more candidates, and returns the effective parameters used for each one: prompt, seed, BPM, duration, model identifier, and pinned upstream revision.
+- a Pacific-date-derived seed for repeatability;
+- a 35-second duration and a tempo constrained to 64–80 BPM;
+- a supply-state-aware musical direction that remains warm and unhurried;
+- an instrumental prompt; and
+- a negative prompt excluding vocals, lyrics, sirens, aggressive drums, harsh percussion, abrupt endings, and anxious or frightening moods.
 
-That contract has a few benefits:
+The date belongs in the seed, not in the data claim. It gives the system a fresh composition cadence even when a source has not published a new update. The resulting artifact carries both timestamps, so the interface never has a reason to call a daily track “live” merely because it was generated today.
 
-- The rest of the pipeline does not depend on one model’s HTTP API.
-- Each candidate is traceable to the precise inputs that produced it.
-- A fixture adapter can exercise the artifact lifecycle in local tests without downloading model weights or spending GPU time.
-- A real adapter can be tested locally, then run in a GPU job without changing the artifact semantics.
+This is a useful distinction in applied AI work: prompt text alone is not a control plane. A typed, validated specification makes the constraints observable, testable, and durable across model changes.
 
-For the first self-hosted integration, I am using ACE-Step’s Turbo profile in a containerized GPU worker. The worker starts the model API on a loopback interface, submits a single constrained generation request, polls it to completion, and writes the output into a dated artifact directory. The public site never talks directly to the model service.
+## The model adapter is the architectural center
 
-This is also why the GPU deployment is intentionally one-shot. A long-running public inference endpoint would be the wrong operational shape for a daily artifact pipeline: it costs money while idle, expands the attack surface, and implies real-time behavior the product does not need. The better shape is a job that starts, generates candidates, uploads a private review artifact, and exits.
+The rest of the pipeline does not know how a particular music model queues work, names fields, or returns files. It depends on a small `MusicModelAdapter` contract: accept a `MusicSpec`, generate a requested number of candidates inside a supplied artifact directory, and return a `GeneratedCandidate` for each result.
 
-## Provenance is part of the artifact
+Each candidate includes its local audio path and the *effective parameters* used to make it—prompt, seed, BPM, duration, adapter identity, model ID, upstream revision, task ID, and generation settings. The adapter also exposes `ModelProvenance`: model identity, pinned revision, upstream license, review date, and whether that release is eligible for publication.
 
-Every generation produces an immutable manifest instead of a bare audio file. The manifest captures:
+That boundary does several important things without becoming an abstraction for its own sake:
 
-- the complete source snapshot and its verification status;
-- the music specification and generation date;
-- model ID, pinned revision, license, and release-review state;
-- candidate file paths and SHA-256 hashes;
-- effective model parameters;
-- analysis origin, metrics, and rejection reasons; and
-- the selected candidate and human reviewer, if the artifact is approved.
+- It keeps artifact semantics stable if the underlying model or serving API changes.
+- It makes a local fixture adapter useful for testing the entire artifact lifecycle without model weights or GPU time.
+- It makes a production adapter portable between a laptop, an ephemeral cloud job, and a future managed worker.
+- It treats inference parameters and model release status as artifact data, not deployment trivia.
 
-There is no shortcut from “file exists” to “file is public.” The only artifact the frontend accepts is one reached through an approved `current.json` pointer. Promotion rejects illustrative source data, an unreviewed model release, missing automated evaluation, a failing candidate, or an unnamed reviewer.
+The first real adapter targets ACE-Step’s Turbo profile. It submits a constrained request to the self-hosted `/release_task` endpoint, polls `/query_result`, then retrieves the generated WAV through the local service. The model-specific protocol ends there. Everything after that—analysis, manifest creation, approval, and website delivery—uses the same domain objects regardless of which model rendered the audio.
 
-This is intentionally conservative. A project that talks about blood donation should be more careful with data provenance than a typical generative-media demo.
+## Containerizing the model, rather than outsourcing it
 
-## Quality evaluation: never invent a score
+The inference worker is a dedicated GPU image, separate from the lightweight local compiler image. It starts from NVIDIA CUDA 12.8.1 on Ubuntu 22.04, installs Python 3.11 and the audio runtime dependencies, and builds ACE-Step from a pinned upstream commit with its frozen dependency lockfile. The Pulse generator is then installed into that same virtual environment.
 
-The pipeline has technical rejection gates for duration, integrated loudness, true peak, clipping, vocal probability, target alignment, and similarity to excluded qualities. Those are useful only when measured by a real analysis stack.
+At runtime, the container starts the ACE-Step API bound to `127.0.0.1:8001`. The render entry point waits for its health check, calls the adapter, writes a dated immutable artifact directory, uploads the result to private storage, and terminates the model process before the job exits. The HTTP interface exists only inside the container: there is no public inference URL and no prompt or audio request sent to a third-party generation API.
 
-One important rule in the implementation is that unavailable analysis is recorded as unavailable. It is not filled with plausible-looking values. A genuine model render can be stored for private listening while remaining in `pending_human_review`; it cannot be promoted merely because the audio file was successfully created.
+The cloud deployment shape follows the workload. A GPU job pulls the private image, uses a narrowly scoped service identity to upload a review-only artifact, and shuts down after the render. A persistent GPU service would add idle cost and attack surface for a product that needs periodic batch generation, not on-demand inference.
 
-That distinction is easy to miss in an AI application. Model output, evaluation output, and a production decision are different things. Keeping them separate makes both the system and the story more credible.
+Containerizing this path is more than packaging. The image, the model revision, the Python dependency graph, and the invocation contract are all concrete, reviewable parts of the system. That is the level at which a self-hosted model becomes an engineering system rather than a notebook demo.
+
+## Guardrails: a render is never a publication
+
+The most important rule in the pipeline is that a successfully generated WAV is still only a candidate. A render first becomes an immutable manifest containing the snapshot, full `MusicSpec`, model provenance, candidate hashes, effective parameters, analysis origin, metrics, and rejection reasons.
+
+The manifest begins as `pending_human_review`. Promotion to `current.json` is refused unless all of the following are true:
+
+- the source snapshot is verified, not illustrative;
+- the exact model release has been explicitly marked release-eligible;
+- at least one candidate has passed automated evaluation;
+- the selected candidate still passes every hard gate; and
+- a named human reviewer approves the artifact.
+
+The evaluation contract is intentionally strict about missing capability. It has gates for duration, loudness, true peak, clipping, vocal probability, target alignment, and negative alignment. But until the production audio-analysis stack produces real measurements, it records the analysis as unavailable rather than fabricating a friendly-looking score. That keeps a real model render private and listenable for review while making it impossible to publish by accident.
+
+Once an artifact is approved, the public site resolves only the small `current.json` pointer to an immutable manifest. Audio downloads only after the visitor presses play, and the browser verifies the WAV’s SHA-256 against the manifest before playback. Hash verification is not a substitute for storage access controls; it is a final integrity check that makes an accidental replacement visible rather than silent.
 
 ## What is intentionally not live yet
 
