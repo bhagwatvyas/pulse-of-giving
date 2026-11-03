@@ -45,7 +45,23 @@ The repository deliberately does **not** include model weights, generated audio,
 
 ## Current status
 
-The website is an illustrative front-end prototype. The generator service compiles a deterministic `MusicSpec`, writes immutable candidate artifacts, and enforces a manual promotion gate. Its included fixture adapter produces test tones only; it does not perform AI inference and cannot publish an artifact. A pinned self-hosted model adapter is the next integration.
+The website is ready for a review-only staging deployment. It never synthesizes browser audio or substitutes an illustrative scenario for real community data. Instead, it reads `current.json`, rejects any manifest that is not verified, release-eligible, evaluated, and human-approved, verifies the selected audio hash before playback, and otherwise presents a clear not-published state. The generator service compiles a deterministic `MusicSpec`, writes immutable candidate artifacts, and enforces a manual promotion gate. Its included fixture adapter produces test tones only; it does not perform AI inference and cannot publish an artifact. A pinned self-hosted model adapter is the next integration.
+
+## Hosting architecture
+
+The initial deployment keeps the static visitor experience separate from scheduled generation:
+
+```text
+Firebase Hosting (dist/)  ←  current.json + immutable approved artifacts
+                                      ↑
+                         Cloud Storage publication prefix
+                                      ↑
+Cloud Run GPU Job → self-hosted model → evaluation → human approval
+```
+
+`firebase.json` is checked in for a staging deployment. It disables caching for `current.json` and the runtime artifact-origin configuration, while the public player remains disabled until a real approved artifact exists. The repository intentionally does not contain a Firebase project ID, GCP credentials, or deployment tokens.
+
+After creating a dedicated GCP/Firebase project and budget alert, configure Firebase Hosting to use `dist/` and deploy first to a preview channel. Do not attach a production custom domain until the page has been reviewed with a verified, human-approved artifact.
 
 ## Local artifact-pipeline exercise
 

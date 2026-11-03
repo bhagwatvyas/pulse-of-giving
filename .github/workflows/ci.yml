@@ -9,6 +9,16 @@ permissions:
   contents: read
 
 jobs:
+  static-site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --check dist/app.js
+      - run: node --check dist/pulse-config.js
+
   generator-tests:
     runs-on: ubuntu-latest
     defaults:
