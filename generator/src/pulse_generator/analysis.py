@@ -46,3 +46,17 @@ class FixtureMetricsAnalyzer:
             measurement_origin="fixture metrics only; no media analysis was performed",
             metrics=metrics,
         )
+
+
+class PendingAnalysis:
+    """Records a model render without inventing quality or semantic measurements.
+
+    This is intentionally useful only for a local listening session. It prevents a
+    raw model output from becoming eligible for publication before the actual audio
+    analysis stack is installed and run.
+    """
+
+    def analyze(self, candidate: GeneratedCandidate, spec: MusicSpec) -> CandidateAnalysis:
+        return CandidateAnalysis(
+            measurement_origin="generation recorded; automated audio analysis not yet run",
+        )

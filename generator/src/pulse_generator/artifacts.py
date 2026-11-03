@@ -125,7 +125,9 @@ def build_artifact(
     selected = max(passing, key=lambda candidate: candidate.rank_score, default=None)
     manifest = ArtifactManifest(
         artifact_id=destination.name,
-        status=ArtifactStatus.PENDING_REVIEW if selected else ArtifactStatus.REJECTED,
+        # A real render without all automated checks stays reviewable, never publishable.
+        # Reserve rejection for a generation that returned no candidates at all.
+        status=ArtifactStatus.PENDING_REVIEW if candidate_artifacts else ArtifactStatus.REJECTED,
         created_at=created_at or datetime.now(UTC),
         snapshot_id=snapshot.snapshot_id,
         snapshot_status=snapshot.status,
@@ -186,6 +188,8 @@ def approve_artifact(*, root: Path, artifact_id: str, reviewer: str) -> CurrentA
 
 def rank_score(evaluation: EvaluationResult) -> float:
     """Deterministic transparent ranking after hard safety gates have passed."""
+    if evaluation.metrics is None:
+        return 0.0
     metrics = evaluation.metrics
     return round(
         (metrics.target_alignment * 100)

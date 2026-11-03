@@ -5,6 +5,7 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .coverage
+.firebase/
 *.egg-info/
 artifacts/
 models/

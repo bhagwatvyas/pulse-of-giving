@@ -1,7 +1,12 @@
 from .domain import CandidateMetrics, EvaluationResult
 
 
-def evaluate_candidate(metrics: CandidateMetrics) -> EvaluationResult:
+def evaluate_candidate(metrics: CandidateMetrics | None) -> EvaluationResult:
+    if metrics is None:
+        return EvaluationResult(
+            passed=False,
+            reasons=["automated audio analysis is incomplete; human review only"],
+        )
     reasons: list[str] = []
     if not 30 <= metrics.duration_seconds <= 40:
         reasons.append("duration outside 30-40 second window")

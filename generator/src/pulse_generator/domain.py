@@ -78,11 +78,11 @@ class CandidateMetrics(BaseModel):
 class EvaluationResult(BaseModel):
     passed: bool
     reasons: list[str]
-    metrics: CandidateMetrics
+    metrics: CandidateMetrics | None = None
 
 
 class CandidateAnalysis(BaseModel):
     """Measurements supplied by a pluggable audio-analysis implementation."""
 
     measurement_origin: str = Field(min_length=3, max_length=240)
-    metrics: CandidateMetrics
+    metrics: CandidateMetrics | None = None

@@ -37,7 +37,7 @@ infra/cloud-run/         Future Cloud Run GPU Job configuration
 1. Run the policy/compiler tests locally.
 2. Install Docker Desktop and build the lightweight worker image.
 3. Exercise the review-only fixture adapter and inspect its artifact manifest.
-4. Add and benchmark one pinned, self-hosted model adapter locally.
+4. Run and benchmark the pinned, self-hosted ACE-Step adapter locally or in a GPU job.
 5. Run a manual Cloud Run GPU Job with synthetic data.
 6. Enable the daily schedule only after reviewing output, logs, and cost.
 
@@ -75,6 +75,30 @@ pulse-artifact fixture \
 ```
 
 This writes a dated artifact directory with two fixture WAV candidates, file hashes, generation parameters, fixture measurements, evaluation results, and a `pending_human_review` manifest. It deliberately does not write `current.json`: illustrative data and a test-only adapter can never become public playback.
+
+## Real local model render
+
+The worker now has an ACE-Step API adapter for a model service you host yourself. Start
+the official ACE-Step API service locally, then run a single candidate through the
+artifact pipeline:
+
+```bash
+cd generator
+pulse-artifact ace-step \
+  --snapshot fixtures/illustrative-pnw.json \
+  --date 2026-11-02 \
+  --out local-artifacts \
+  --endpoint http://127.0.0.1:8000 \
+  --model-id acestep-v15-turbo \
+  --revision <pinned-upstream-revision-or-image-digest> \
+  --reviewed-at 2026-11-02
+```
+
+This makes a genuine model-rendered WAV locally. It is still an illustrative test
+artifact: the run is deliberately held in `pending_human_review` with no fabricated
+quality metrics, and it cannot be promoted or served by the public website. The next
+production gate is real technical and semantic audio analysis, followed by verified
+PNW source data and a named reviewer.
 
 The same local contract can be checked in the worker image:
 
