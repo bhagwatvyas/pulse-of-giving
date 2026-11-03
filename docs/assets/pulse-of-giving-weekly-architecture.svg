@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
+  <title id="title">Pulse of Giving weekly architecture</title>
+  <desc id="desc">Community inputs shape a scheduled music generation pipeline. The public site plays the latest successful edition or a calm fallback.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fbfaf6}.panel{fill:#ffffff;stroke:#d9ded5;stroke-width:2}.private{fill:#eef5ee;stroke:#a9c8ad;stroke-width:2}.public{fill:#fff6e2;stroke:#dfc47b;stroke-width:2}.node{fill:#ffffff;stroke:#b9c3ba;stroke-width:1.5}.label{font:700 13px Arial,sans-serif;letter-spacing:1.5px;fill:#617067}.title{font:700 22px Arial,sans-serif;fill:#17231c}.copy{font:500 16px Arial,sans-serif;fill:#34443a}.small{font:500 13px Arial,sans-serif;fill:#526259}.arrow{stroke:#6f8b77;stroke-width:2.5;fill:none;marker-end:url(#arrow)}.dash{stroke:#a58b52;stroke-width:2;stroke-dasharray:6 6;fill:none;marker-end:url(#arrowGold)}
+    </style>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#6f8b77"/></marker>
+    <marker id="arrowGold" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#a58b52"/></marker>
+  </defs>
+  <rect class="bg" width="1200" height="680" rx="26"/>
+  <text class="title" x="56" y="62">Pulse of Giving · weekly generation and delivery</text>
+  <text class="copy" x="56" y="92">Community inputs shape a calm composition; the public experience stays available.</text>
+
+  <rect class="panel" x="55" y="135" width="270" height="415" rx="18"/>
+  <text class="label" x="83" y="175">COMMUNITY INPUTS</text>
+  <rect class="node" x="83" y="202" width="214" height="70" rx="12"/>
+  <text class="copy" x="104" y="232">Weekly source inputs</text><text class="small" x="104" y="253">broad donation + need signals</text>
+  <rect class="node" x="83" y="305" width="214" height="70" rx="12"/>
+  <text class="copy" x="104" y="335">State geography</text><text class="small" x="104" y="356">coarse centroid signature</text>
+  <rect class="node" x="83" y="408" width="214" height="70" rx="12"/>
+  <text class="copy" x="104" y="438">Weekly date</text><text class="small" x="104" y="459">fresh, repeatable variation</text>
+
+  <rect class="private" x="375" y="135" width="440" height="415" rx="18"/>
+  <text class="label" x="404" y="175">SCHEDULED GENERATION PLANE</text>
+  <rect class="node" x="404" y="202" width="180" height="78" rx="12"/>
+  <text class="copy" x="425" y="235">MusicSpec</text><text class="small" x="425" y="256">typed constraints</text>
+  <rect class="node" x="612" y="202" width="175" height="78" rx="12"/>
+  <text class="copy" x="633" y="235">Model adapter</text><text class="small" x="633" y="256">pinned model contract</text>
+  <rect class="node" x="404" y="341" width="180" height="78" rx="12"/>
+  <text class="copy" x="425" y="374">GPU worker</text><text class="small" x="425" y="395">private, one-shot job</text>
+  <rect class="node" x="612" y="341" width="175" height="78" rx="12"/>
+  <text class="copy" x="633" y="374">Automated checks</text><text class="small" x="633" y="395">format · calm envelope</text>
+  <rect class="node" x="501" y="462" width="190" height="62" rx="12"/>
+  <text class="copy" x="523" y="499">Immutable music edition</text>
+
+  <rect class="public" x="865" y="135" width="280" height="415" rx="18"/>
+  <text class="label" x="893" y="175">PUBLIC EXPERIENCE</text>
+  <rect class="node" x="893" y="202" width="224" height="78" rx="12"/>
+  <text class="copy" x="914" y="235">Latest successful edition</text><text class="small" x="914" y="256">or previous week</text>
+  <rect class="node" x="893" y="341" width="224" height="78" rx="12"/>
+  <text class="copy" x="914" y="374">Calm fallback track</text><text class="small" x="914" y="395">if no edition is available</text>
+  <rect class="node" x="893" y="462" width="224" height="62" rx="12"/>
+  <text class="copy" x="914" y="499">Listen · learn · donate</text>
+
+  <path class="arrow" d="M297 237 H404"/><path class="arrow" d="M297 340 H360 V241 H404"/><path class="arrow" d="M297 443 H345 V262 H404"/>
+  <path class="arrow" d="M584 241 H612"/><path class="arrow" d="M699 280 V341"/><path class="arrow" d="M494 280 V341"/><path class="arrow" d="M584 380 H612"/>
+  <path class="arrow" d="M700 419 V493 H691"/><path class="arrow" d="M691 493 H865"/><path class="dash" d="M1005 280 V341"/><path class="arrow" d="M1005 419 V462"/>
+  <text class="small" x="904" y="313">failure path</text>
+</svg>

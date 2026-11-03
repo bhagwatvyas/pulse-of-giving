@@ -44,31 +44,7 @@ The call to action is intentionally outbound. Pulse of Giving should point peopl
 
 The product has two planes: a scheduled system that produces a new regional edition, and a simple public experience that plays the most recent successful edition. The public site does not expose source numbers or call the model on demand.
 
-```mermaid
-flowchart TB
-    sources[Weekly multi-source regional inputs] --> aggregate[State-level normalization]
-    geography[State centroid] --> compiler[Deterministic MusicSpec compiler]
-    date[Week + date seed] --> compiler
-    aggregate --> compiler
-
-    subgraph private[Scheduled generation plane]
-        compiler --> adapter[MusicModelAdapter]
-        adapter --> worker[Containerized ACE-Step GPU worker]
-        worker --> candidate[Private WAV candidate]
-        candidate --> checks[Automated format and safety checks]
-        checks --> manifest[Immutable artifact manifest]
-        manifest --> pointer[Latest successful edition]
-    end
-
-    subgraph public[Public delivery plane]
-        pointer --> site[Firebase-hosted web experience]
-        fallback[Last successful edition or calm default track] --> site
-        site --> listener[Visitor: listen, learn, find a center]
-    end
-
-    aggregate -. source provenance .-> manifest
-    adapter -. model provenance .-> manifest
-```
+![Pulse of Giving weekly generation and delivery architecture](https://raw.githubusercontent.com/bhagwatvyas/pulse-of-giving/main/docs/assets/pulse-of-giving-weekly-architecture.svg)
 
 The model worker is not an internet-facing feature. It is a private, one-shot job that renders an edition, writes an immutable artifact, and exits. The public site has no route to the model API and no ability to request a generation.
 
